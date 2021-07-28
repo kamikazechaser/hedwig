@@ -13,13 +13,20 @@ import (
 	"github.com/vartanbeno/go-reddit/v2/reddit"
 )
 
+type key string
+
+// config to be loaded from file
 type Config struct {
-	TelegramToken string
+	TelegramToken     string
 	RedditCredentials *reddit.Credentials
 }
 
+const (
+	configKey key = "config"
+)
+
 var (
-	conf = koanf.New(".")
+	conf   = koanf.New(".")
 	config = &Config{}
 )
 
@@ -32,8 +39,8 @@ func initConfig() {
 
 	config.TelegramToken = conf.String("telegram.token")
 	config.RedditCredentials = &reddit.Credentials{
-		ID: conf.String("reddit.app_id"),
-		Secret: conf.String("reddit.app_secret"),
+		ID:       conf.String("reddit.app_id"),
+		Secret:   conf.String("reddit.app_secret"),
 		Username: conf.String("reddit.username"),
 		Password: conf.String("reddit.password"),
 	}
@@ -41,7 +48,7 @@ func initConfig() {
 
 func injectConfig(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), "config", config)
+		ctx := context.WithValue(r.Context(), configKey, config)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -52,12 +59,12 @@ func main() {
 	chiRouter := chi.NewRouter()
 	chiRouter.Route("/notification", func(router chi.Router) {
 		router.Use(injectConfig)
-		router.Get("/telegram", telegramHandler)   
+		router.Get("/telegram", telegramHandler)
 	})
 
 	log.Info().Msg("server listening on port " + conf.String("server.port"))
 
-	if err := http.ListenAndServe(":" + conf.String("server.port"), chiRouter); err != nil {
+	if err := http.ListenAndServe(":"+conf.String("server.port"), chiRouter); err != nil {
 		log.Fatal().Err(err).Msg("server couldn't start")
 	}
 }
