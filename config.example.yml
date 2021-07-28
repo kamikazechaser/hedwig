@@ -1,0 +1,9 @@
+server:
+  port: 3000
+telegram:
+  token: tg_token
+reddit:
+  username: reddit_username
+  password: reddit_password
+  app_id: reddit_app_id
+  app_secret: reddit_app_secret
