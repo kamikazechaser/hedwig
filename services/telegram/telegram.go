@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/kamikazechaser/hoodwink/internal/message"
+	"github.com/yi-jiayu/ted"
 )
 
 const (
@@ -21,18 +20,13 @@ type config struct {
 }
 
 type client struct {
-	config *config
-	request *http.Client
+	config     *config
+	httpClient *http.Client
 }
 
-type telegramResponse struct {
-	Ok bool `json:"ok"`
-	Result interface{} `json:"result"`
-}
-
+// New initializes the service client
 func New(jsonConfig map[string]interface{}) (interface{}, error) {
 	var conf *config
-
 	jsonString, err := json.Marshal(jsonConfig)
 
 	if err != nil {
@@ -43,18 +37,18 @@ func New(jsonConfig map[string]interface{}) (interface{}, error) {
 		return nil, err
 	}
 
+	// Ensure all api keys are present in the config file before attempting to push notifications
 	if conf.Token == "" {
 		return nil, errors.New("telegram token not provided")
 	}
 
-	// replace with asynq queue builder
 	httpClient := &http.Client{
-		Timeout: time.Duration(5) * time.Second,
+		Timeout: time.Second * 15,
 	}
 
 	return &client{
-		config: conf,
-		request: httpClient,
+		config:     conf,
+		httpClient: httpClient,
 	}, nil
 }
 
@@ -63,39 +57,24 @@ func (c *client) ServiceName() string {
 }
 
 func (c *client) Push(msg message.Message) error {
-	fmt.Println(c.config.Token)
+	tg := ted.Bot{
+		Token:      c.config.Token,
+		HTTPClient: c.httpClient,
+	}
 
-	var tgEndpoint = "https://api.telegram.org/bot" + c.config.Token + "/sendMessage"
+	pushMessage := ted.SendMessageRequest{
+		ChatID:    msg.To,
+		Text:      fmt.Sprintf("*%s*\n\n%s", msg.Title, msg.Content),
+		ParseMode: "Markdown",
+	}
 
-	resp, err := c.request.PostForm(
-		tgEndpoint,
-		url.Values{
-			"chat_id": {msg.To},
-			"text": {msg.Title + "\n\n" + msg.Content},
-		})
-
+	_, err := tg.Do(pushMessage)
 	if err != nil {
+		if tgError, ok := err.(ted.Response); ok {
+			return tgError
+		}
+
 		return err
-	}
-
-	defer resp.Body.Close()
-
-	b, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		return err
-	}
-
-	tgRes := telegramResponse{}
-
-	if err := json.Unmarshal(b, &tgRes); err != nil {
-		return err
-	}
-
-	fmt.Printf("%v", tgRes)
-
-	if !tgRes.Ok {
-		return errors.New("telegram side error")
 	}
 
 	return nil

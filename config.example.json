@@ -2,16 +2,19 @@
   "server": {
     "port": 3000
   },
-  "enabledServices": ["telegram"],
+  "enabledServices": ["", ""],
   "services": {
     "telegram": {
       "config": {
-        "token": "tg_token"
+        "token": ""
       }
     },
     "reddit": {
       "config": {
-        "username": "reddit_username"
+        "app_id": "",
+        "app_secret": "",
+        "username": "",
+        "password": "0"
       }
     }
   }
