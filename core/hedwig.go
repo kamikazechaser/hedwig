@@ -5,6 +5,8 @@ import (
 	"log"
 	"plugin"
 
+	"github.com/fvbock/endless"
+	"github.com/gin-gonic/gin"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/file"
@@ -12,8 +14,15 @@ import (
 	"github.com/kamikazechaser/hedwig/internal/svcplugin"
 )
 
+// App represents th golbal application configuration
+type App struct {
+	enabledServices []string
+	services        map[string]svcplugin.Service
+}
+
 var (
-	conf = koanf.New(".")
+	version = "dev"
+	conf    = koanf.New(".")
 )
 
 func initConfig() (map[string]svcplugin.Service, error) {
@@ -54,7 +63,7 @@ func initConfig() (map[string]svcplugin.Service, error) {
 		// Unmarshal koanf-loaded json service configuration into map struct
 		// TODO: Skip unnecessary re-marshalling step inside plugins
 		// Perhaps we can jsonStringify then koanf-unmarhsal it directly into a better defined config struct
-		if err := conf.Unmarshal("services."+service, &svcConf); err != nil {
+		if err := conf.Unmarshal(fmt.Sprintf("services.%s", service), &svcConf); err != nil {
 			return nil, err
 		}
 
@@ -83,10 +92,25 @@ func initConfig() (map[string]svcplugin.Service, error) {
 
 func main() {
 	services, err := initConfig()
-
 	if err != nil {
 		log.Fatalf("failed to load service: %v", err)
 	}
 
-	fmt.Printf("%v\n", services)
+	app := &App{
+		services:        services,
+		enabledServices: conf.Strings("enabledServices"),
+	}
+
+	router := gin.Default()
+
+	router.Use(
+		func(c *gin.Context) {
+			c.Set("app", app)
+			c.Next()
+		},
+	)
+
+	router.GET("/stats", getStats)
+
+	endless.ListenAndServe(fmt.Sprintf(":%d", conf.Int("server.port")), router)
 }

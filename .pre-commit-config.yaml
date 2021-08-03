@@ -1,7 +1,19 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
   - repo: https://github.com/tekwizely/pre-commit-golang
     rev: v0.8.3
     hooks:
-      - id: go-fmt
-        args: [-s]
+      - id: go-returns
+        args: [-w]
       - id: go-lint
+      - id: go-vet-mod
+  - repo: local
+    hooks:
+      - id: go-mod-tidy
+        name: go-mod-tidy
+        language: system
+        entry: bash -c 'go mod tidy'
