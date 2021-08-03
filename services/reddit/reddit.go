@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kamikazechaser/hoodwink/internal/message"
+	"github.com/kamikazechaser/hedwig/internal/message"
 	"github.com/vartanbeno/go-reddit/reddit"
 )
 

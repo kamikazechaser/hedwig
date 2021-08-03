@@ -9,7 +9,7 @@ import (
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/file"
 
-	"github.com/kamikazechaser/hoodwink/internal/svcplugin"
+	"github.com/kamikazechaser/hedwig/internal/svcplugin"
 )
 
 var (

@@ -1,6 +1,6 @@
 package svcplugin
 
-import "github.com/kamikazechaser/hoodwink/internal/message"
+import "github.com/kamikazechaser/hedwig/internal/message"
 
 // ServiceConf represents the configuration of the service loaded from the config file
 type ServiceConf struct {

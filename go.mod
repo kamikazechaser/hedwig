@@ -1,4 +1,4 @@
-module github.com/kamikazechaser/hoodwink
+module github.com/kamikazechaser/hedwig
 
 go 1.16
 
