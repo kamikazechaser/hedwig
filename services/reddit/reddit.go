@@ -13,6 +13,7 @@ import (
 
 const (
 	serviceName string = "reddit"
+	version     string = "v1"
 )
 
 type config struct {
