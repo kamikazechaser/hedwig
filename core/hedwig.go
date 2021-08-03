@@ -14,7 +14,7 @@ import (
 	"github.com/kamikazechaser/hedwig/internal/svcplugin"
 )
 
-// App represents th golbal application configuration
+// App represents the global application configuration
 type App struct {
 	enabledServices []string
 	services        map[string]svcplugin.Service
@@ -23,6 +23,7 @@ type App struct {
 var (
 	version = "dev"
 	conf    = koanf.New(".")
+	app     *App
 )
 
 func initConfig() (map[string]svcplugin.Service, error) {
@@ -96,19 +97,12 @@ func main() {
 		log.Fatalf("failed to load service: %v", err)
 	}
 
-	app := &App{
+	app = &App{
 		services:        services,
 		enabledServices: conf.Strings("enabledServices"),
 	}
 
 	router := gin.Default()
-
-	router.Use(
-		func(c *gin.Context) {
-			c.Set("app", app)
-			c.Next()
-		},
-	)
 
 	router.GET("/stats", getStats)
 
