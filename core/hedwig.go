@@ -19,6 +19,7 @@ import (
 type App struct {
 	enabledServices []string
 	services        map[string]svcplugin.Service
+	key             string
 }
 
 var (
@@ -106,11 +107,15 @@ func main() {
 	app = &App{
 		services:        services,
 		enabledServices: conf.Strings("enabledServices"),
+		key:             conf.String("secretKey"),
 	}
 
 	router := gin.Default()
 
+	router.Use(checkKey())
 	router.GET("/stats", getStats)
+	router.POST("/push/:service", pushMessage)
+	router.POST("/push/all", pushAll)
 
 	endless.ListenAndServe(fmt.Sprintf(":%d", conf.Int("server.port")), router)
 }
