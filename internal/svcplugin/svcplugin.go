@@ -8,7 +8,7 @@ type ServiceConf struct {
 }
 
 // NewService represents an init function that returns a Provider
-type NewService func(jsonCfg map[string]interface{}) (Service, error)
+type NewService func([]byte) (Service, error)
 
 // Service represents a messaging service e.g. Telegram
 type Service interface {

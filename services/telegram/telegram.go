@@ -25,15 +25,10 @@ type client struct {
 }
 
 // New initializes the service client
-func New(jsonConfig map[string]interface{}) (interface{}, error) {
+func New(jsonConfig []byte) (interface{}, error) {
 	var conf *config
-	jsonString, err := json.Marshal(jsonConfig)
 
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(jsonString, &conf); err != nil {
+	if err := json.Unmarshal(jsonConfig, &conf); err != nil {
 		return nil, err
 	}
 

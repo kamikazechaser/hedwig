@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"plugin"
@@ -8,7 +9,7 @@ import (
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/knadh/koanf"
-	"github.com/knadh/koanf/parsers/json"
+	kson "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/file"
 
 	"github.com/kamikazechaser/hedwig/internal/svcplugin"
@@ -27,7 +28,7 @@ var (
 )
 
 func initConfig() (map[string]svcplugin.Service, error) {
-	if err := conf.Load(file.Provider("config.json"), json.Parser()); err != nil {
+	if err := conf.Load(file.Provider("config.json"), kson.Parser()); err != nil {
 		return nil, fmt.Errorf("error loading config")
 	}
 
@@ -54,7 +55,7 @@ func initConfig() (map[string]svcplugin.Service, error) {
 		}
 
 		// Ensure the "New()" function signature is valid
-		f, ok := newFunc.(func(map[string]interface{}) (interface{}, error))
+		f, ok := newFunc.(func([]byte) (interface{}, error))
 		if !ok {
 			return nil, fmt.Errorf("plugin:New() function is of invalid type (%T) in %s", newFunc, service)
 		}
@@ -62,8 +63,7 @@ func initConfig() (map[string]svcplugin.Service, error) {
 		var svcConf svcplugin.ServiceConf
 
 		// Unmarshal koanf-loaded json service configuration into map struct
-		// TODO: Skip unnecessary re-marshalling step inside plugins
-		// Perhaps we can jsonStringify then koanf-unmarhsal it directly into a better defined config struct
+		// Ref: https://github.com/knadh/koanf/issues/76#issuecomment-853754910
 		if err := conf.Unmarshal(fmt.Sprintf("services.%s", service), &svcConf); err != nil {
 			return nil, err
 		}
@@ -72,8 +72,14 @@ func initConfig() (map[string]svcplugin.Service, error) {
 			return nil, fmt.Errorf("no config found for %s", service)
 		}
 
+		marshalledConf, err := json.Marshal(svcConf.Config)
+
+		if err != nil {
+			return nil, fmt.Errorf("unable to marshal into byte string for service %s", service)
+		}
+
 		// Init plugin
-		loadSvc, err := f(svcConf.Config)
+		loadSvc, err := f(marshalledConf)
 		if err != nil {
 			return nil, fmt.Errorf("error initializing service %s: %v", service, err)
 		}
