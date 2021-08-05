@@ -13,7 +13,6 @@ import (
 
 const (
 	serviceName string = "reddit"
-	version     string = "v1"
 )
 
 type config struct {
@@ -41,7 +40,7 @@ func New(jsonConfig []byte) (interface{}, error) {
 		return nil, errors.New("reddit config is incomplete")
 	}
 
-	httpClient := &http.Client{Timeout: time.Second * 15}
+	httpClient := &http.Client{Timeout: time.Second * 5}
 	credentials := reddit.Credentials(*conf)
 	newRedditClient, _ := reddit.NewClient(httpClient, &credentials)
 

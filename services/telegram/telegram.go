@@ -34,11 +34,11 @@ func New(jsonConfig []byte) (interface{}, error) {
 
 	// Ensure all api keys are present in the config file before attempting to push notifications
 	if conf.Token == "" {
-		return nil, errors.New("telegram token not provided")
+		return nil, errors.New("token not provided")
 	}
 
 	httpClient := &http.Client{
-		Timeout: time.Second * 15,
+		Timeout: time.Second * 5,
 	}
 
 	return &client{

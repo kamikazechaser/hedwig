@@ -3,7 +3,10 @@
   "server": {
     "port": 3000
   },
-  "enabledServices": ["", ""],
+  "async": {
+    "redis": "localhost:6379"
+  },
+  "enabledServices": ["telegram", "reddit"],
   "services": {
     "telegram": {
       "config": {
