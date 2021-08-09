@@ -3,11 +3,21 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hibiken/asynq"
 	"github.com/kamikazechaser/hedwig/internal/message"
 )
+
+type pushBody struct {
+	To      string   `json:"to" binding:"required"`
+	Service string   `json:"service" binding:"required"`
+	Title   string   `json:"title" binding:"required"`
+	Content string   `json:"content" binding:"required"`
+	Delay   int      `json:"delay"`
+	Params  []string `json:"params"`
+}
 
 func getStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
@@ -19,33 +29,47 @@ func getStats(c *gin.Context) {
 }
 
 func pushMessage(c *gin.Context) {
-	if service, ok := app.services[c.Param("service")]; ok {
-		serviceDestination := service.ServiceName()
+	var jsonBody pushBody
 
-		// TODO: Bind JSON directly to asynq payload
-		payload, err := json.Marshal(message.Message{
-			Service: serviceDestination,
-			To:      "to",
-			Title:   "title",
-			Content: "body",
+	if err := c.ShouldBindJSON(&jsonBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"ok":      false,
+			"message": "json body validation failed",
 		})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"ok":      false,
-				"message": "payload does not match message signature",
-			})
+		return
+	}
 
-			return
+	if service, ok := app.services[jsonBody.Service]; ok {
+		serviceDestination := service.ServiceName()
+		servicePayload := message.Message{
+			Service: serviceDestination,
+			To:      jsonBody.To,
+			Title:   jsonBody.Title,
+			Content: jsonBody.Content,
+			Params:  nil,
 		}
 
+		if len(jsonBody.Params) > 1 {
+			servicePayload.Params = jsonBody.Params
+		}
+
+		payload, _ := json.Marshal(servicePayload)
+
 		task := asynq.NewTask(serviceDestination, payload)
-		info, err := q.Enqueue(task)
+		var taskArgs = []asynq.Option{}
+
+		if jsonBody.Delay > 0 {
+			taskArgs = []asynq.Option{
+				asynq.ProcessIn(time.Second * time.Duration(jsonBody.Delay)),
+			}
+		}
+
+		info, err := q.Enqueue(task, taskArgs...)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"ok":      false,
 				"message": "sometng went wrong",
 			})
-
 			return
 		}
 
@@ -53,7 +77,6 @@ func pushMessage(c *gin.Context) {
 			"ok":      true,
 			"message": info.ID,
 		})
-
 		return
 	}
 

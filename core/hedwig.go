@@ -43,7 +43,7 @@ func main() {
 
 	router.Use(checkKey())
 	router.GET("/stats", getStats)
-	router.GET("/push/:service", pushMessage)
+	router.POST("/push", pushMessage)
 	router.POST("/push/all", pushAll)
 
 	go endless.ListenAndServe(fmt.Sprintf(":%d", conf.Int("server.port")), router)
