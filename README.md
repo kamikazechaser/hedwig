@@ -2,7 +2,7 @@
 
 ### Hedwig
 
-> Standalone server for sending out notifications with pluggable service providers (Telegram, Email, e.t.c.)
+> Standalone server for sending out notifications with pluggable service providers
 ---
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/kamikazechaser/hedwig)](https://goreportcard.com/report/github.com/kamikazechaser/hedwig)
@@ -23,7 +23,7 @@ All incoming messages are required to follow a common `message spec`.
 
 - Service providers are loaded as compiled [Go plugins](https://pkg.go.dev/plugin)
 - Underlying resiliancy and persistance provided by [asynq](https://github.com/hibiken/asynq)
-- Scheduled sending with optional recall
+- Scheduled notifications with optional recall option
 - Queue from any source that talks HTTP
 - Fanout to multiple service providers from a single request
 
