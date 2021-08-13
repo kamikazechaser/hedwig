@@ -6,11 +6,18 @@
   "async": {
     "redis": "localhost:6379"
   },
-  "enabledServices": ["telegram", "reddit"],
+  "enabledServices": ["telegram", "reddit", "mailgun"],
   "services": {
     "telegram": {
       "config": {
         "token": ""
+      }
+    },
+    "mailgun": {
+      "config": {
+        "private_key": "",
+        "domain": "",
+        "from": ""
       }
     },
     "reddit": {
