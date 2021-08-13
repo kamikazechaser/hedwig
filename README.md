@@ -13,7 +13,7 @@
 
 This is a replacement for one of my project's notification server which was crudely based on serverless functions. The older implementation suffered from poor resilliancy and zero persistance. The other alternatives ([shove](https://github.com/pennersr/shove)) are not suitable for my use case where I change service providers regularly and want finer control over how messages are created.
 
-The current design is based on Go plugins and follow a specific [`plugin spec`](https://github.com/kamikazechaser/hedwig/blob/master/internal/svcplugin/svcplugin.go). This allows for high flexibility and control over individual service clients. The compiled plugins are loaded during runtime and individual plugin configuration pulled from the [`config file`](https://github.com/kamikazechaser/hedwig/blob/master/config.exmple.json).
+The current design is based on Go plugins and follow a specific [`plugin spec`](https://github.com/kamikazechaser/hedwig/blob/master/internal/svcplugin/svcplugin.go). This allows for high flexibility and control over individual service clients. The compiled plugins are loaded during runtime and individual plugin configuration pulled from the [`config file`](https://github.com/kamikazechaser/hedwig/blob/master/config.example.json).
 
 Hedwig exposes a protected HTTP endpoint to enqueue incoming messages which are required to follow a common [`message spec`](https://github.com/kamikazechaser/hedwig/blob/master/internal/message/message.go).
 
