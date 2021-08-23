@@ -97,6 +97,8 @@ github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKe
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hibiken/asynq v0.18.2 h1:hbLVygnmQMc2evTmNildtUWaUPHIBtggA59MoaHp/bY=
 github.com/hibiken/asynq v0.18.2/go.mod h1:Sn3Ql1clxIO5kXoFOAE3W73tX81Hkau+2Kam9LfgymM=
+github.com/hibiken/asynq v0.18.4 h1:6vX7IGHPA7buufZldaB2NRIo74EF2L6d2J16tjzfff4=
+github.com/hibiken/asynq v0.18.4/go.mod h1:Sn3Ql1clxIO5kXoFOAE3W73tX81Hkau+2Kam9LfgymM=
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=
