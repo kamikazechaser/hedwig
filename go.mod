@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v7 v7.4.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/hibiken/asynq v0.18.2
+	github.com/hibiken/asynq v0.18.6
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/knadh/koanf v1.2.1
 	github.com/mailgun/mailgun-go/v4 v4.5.2
