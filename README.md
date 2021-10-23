@@ -33,3 +33,50 @@ Hedwig comes with a couple of sample plugins to give you an idea of how to write
 - Telegram
 - Reddit
 - Mailgun
+
+### Usage
+
+**prerequisites**
+
+- Go 1.6
+- Make
+- Redis server (add to `config.json`)
+
+```bash
+$ cp config.example.json config.json
+# Edit config.json
+$ make build
+$ ./hedwig
+# Hedwig will look for plugins in the root folder and load them at run time
+```
+
+Queue notifications by sending a request in the format:
+
+Request:
+
+```
+> POST /push?key=test HTTP/1.1
+> Host: localhost:3000
+> Content-Type: application/json
+> Accept: */*
+
+| {
+| 	"to": "135207785",
+| 	"service": "telegram",
+| 	"title": "hello from hedwig",
+| 	"content": "test123",
+| 	"delay": 1,
+| 	"params": ["Markdown"]
+| }
+```
+
+Response:
+
+```
+< HTTP/1.1 200 OK
+< Content-Type: application/json; charset=utf-8
+
+| {
+|   "message": "6c9d0793-41e8-438c-9181-170af6a6da7f",
+|   "ok": true
+| }
