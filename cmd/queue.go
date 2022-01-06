@@ -6,6 +6,7 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/kamikazechaser/hedwig/internal/message"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -37,6 +38,7 @@ func initQueue() {
 	mux := asynq.NewServeMux()
 
 	for plugin := range hedwig {
+		log.Debug().Msgf("adding queue handler for %s", plugin)
 		mux.HandleFunc(plugin, genericHandler)
 	}
 

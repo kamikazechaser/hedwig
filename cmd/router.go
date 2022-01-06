@@ -17,7 +17,7 @@ func startServer(host string, port string) {
 	if conf.Bool("api.auth") {
 		router.Use(checkKey())
 	}
-	router.GET("/push", pushMessage)
+	router.POST("/push", pushMessage)
 
 	log.Debug().Msg("starting api server")
 	go endless.ListenAndServe(fmt.Sprintf("%s:%s", host, port), router)

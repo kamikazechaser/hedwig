@@ -26,7 +26,7 @@ func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
-	confFile := file.Provider("config/config.toml")
+	confFile := file.Provider("config.toml")
 
 	if err := conf.Load(confFile, toml.Parser()); err != nil {
 		log.Fatal().Err(err).Msg("cannot load config file")
