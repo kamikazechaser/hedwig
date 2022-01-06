@@ -5,5 +5,4 @@ BIN := hedwig
 
 .PHONY: build
 build:
-	export CGO_ENABLED=1 GOOS=linux
-	go build -tags=${GIN} -o ${BIN} -ldflags="-s -w -X 'main.version=${BUILDSTR}'" core/*.go
+	CGO_ENABLED=0 GOOS=linux go build -tags=${GIN} -o build/${BIN} -ldflags="-s -w -X 'main.version=${BUILDSTR}'" cmd/*.go

@@ -17,7 +17,7 @@ func checkKey() gin.HandlerFunc {
 			return
 		}
 
-		if c.Query("key") != app.key {
+		if c.Query("key") != conf.String("api.key") {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"ok":      false,
 				"message": "invalid secret key",

@@ -7,4 +7,5 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/hibiken/asynq v0.20.0
 	github.com/knadh/koanf v1.4.0
+	github.com/rs/zerolog v1.26.1
 )

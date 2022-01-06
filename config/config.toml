@@ -1,0 +1,17 @@
+[api]
+auth = true
+key = "thisIsInsecure"
+
+[server]
+host = "0.0.0.0"
+port = 3000
+
+[queue]
+redis = "localhost:6379"
+concurrency = 2
+
+[plugins]
+path = "plugins"
+
+[debug]
+enabled = true

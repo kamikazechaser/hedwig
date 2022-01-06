@@ -19,15 +19,6 @@ type pushBody struct {
 	Params  []string `json:"params"`
 }
 
-func getStats(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"ok":              true,
-		"enabledServices": app.enabledServices,
-		"commitVersion":   version,
-		"serverMode":      gin.Mode(),
-	})
-}
-
 func pushMessage(c *gin.Context) {
 	var jsonBody pushBody
 
@@ -39,8 +30,8 @@ func pushMessage(c *gin.Context) {
 		return
 	}
 
-	if service, ok := app.services[jsonBody.Service]; ok {
-		serviceDestination := service.ServiceName()
+	if service, ok := hedwig[jsonBody.Service]; ok {
+		serviceDestination := service.PluginName()
 		servicePayload := message.Message{
 			Service: serviceDestination,
 			To:      jsonBody.To,
@@ -64,7 +55,7 @@ func pushMessage(c *gin.Context) {
 			}
 		}
 
-		info, err := q.Enqueue(task, taskArgs...)
+		info, err := qClient.Enqueue(task, taskArgs...)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"ok":      false,
@@ -83,13 +74,5 @@ func pushMessage(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{
 		"ok":      false,
 		"message": "service not found",
-	})
-}
-
-func pushAll(c *gin.Context) {
-	// TODO: Fanout to all services
-	c.JSON(http.StatusNotFound, gin.H{
-		"ok":      false,
-		"message": "not implemented",
 	})
 }

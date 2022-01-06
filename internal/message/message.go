@@ -1,6 +1,6 @@
 package message
 
-// Message represents the common message struct for all services to consume
+// Message describes incoming API request
 type Message struct {
 	Service string   `json:"service"`
 	To      string   `json:"to"`
