@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:6-alpine
+    container_name: redis
+    restart: always
+    volumes:
+      - ./redis-data:/data
+    command: redis-server --save 60 1
+    ports:
+      - '6379'
+  hedwig:
+    image: hedwig:v0.2.2
+    container_name: hedwig
+    depends_on:
+      - redis
+    environment:
+      - HEDWIG_QUEUE_REDIS=redis:6379
+      - HEDWIG_API_AUTH=false
+    ports:
+      - '3000:3000'
