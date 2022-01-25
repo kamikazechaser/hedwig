@@ -11,9 +11,7 @@
 
 ### Background
 
-This is a replacement for one of my project's notification server which was crudely based on serverless functions. The older implementation suffered from poor resilliancy and zero persistance. The other alternatives ([shove](https://github.com/pennersr/shove)) are not suitable for my use case where I change service providers regularly and want finer control over how messages are created.
-
-The current design is based on Go plugins and follow a specific [`plugin spec`](https://github.com/kamikazechaser/hedwig/blob/master/internal/svcplugin/svcplugin.go). This allows for high flexibility and control over individual service clients. The compiled plugins are loaded during runtime and individual plugin configuration pulled from the [`config file`](https://github.com/kamikazechaser/hedwig/blob/master/config.example.json).
+The current design is based on Go plugins and follow a specific [`plugin spec`](https://github.com/kamikazechaser/hedwig/blob/master/internal/svcplugin/svcplugin.go). The compiled plugins are loaded during runtime. Any plugin specific configuration is baked into the plugin itself.
 
 Hedwig exposes a protected HTTP endpoint to enqueue incoming messages which are required to follow a common [`message spec`](https://github.com/kamikazechaser/hedwig/blob/master/internal/message/message.go).
 
@@ -28,11 +26,69 @@ Hedwig exposes a protected HTTP endpoint to enqueue incoming messages which are 
 
 ### Plugins
 
-Hedwig comes with a couple of sample plugins to give you an idea of how to write your own:
+A sample plugin would look like:
 
-- Telegram
-- Reddit
-- Mailgun
+```go
+package main
+
+import (
+	"context"
+	"time"
+
+	"github.com/kamikazechaser/hedwig/internal/message"
+	"github.com/mailgun/mailgun-go/v4"
+)
+
+const (
+	pluginName string = "mailgun"
+)
+
+type client struct {
+	mailgunClient *mailgun.MailgunImpl
+}
+
+func New() (interface{}, error) {
+	mg := mailgun.NewMailgun("", "")
+
+	return &client{
+		mailgunClient: mg,
+	}, nil
+}
+
+func (c *client) PluginName() string {
+	return pluginName
+}
+
+func (c *client) HealthCheck() bool {
+    // check if you have enough credits e.t.c.
+    // TODO: not implemnted in Hedwig yet
+	return true
+}
+
+func (c *client) Push(msg message.Message) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	mail := c.mailgunClient.NewMessage("Domain <noreply@your.domain>", msg.Title, "", msg.To)
+	mail.SetTemplate("master")
+
+    // msg.Params for additional properties that you want to include
+	mail.AddVariable("link", msg.Params[0])
+	mail.AddVariable("action", msg.Params[1])
+	mail.AddVariable("message", msg.Content)
+
+	_, _, err := c.mailgunClient.Send(ctx, mail)
+
+	if err != nil {
+        // return errors only if you want to keep retrying
+        // return nil in cases where the service is blocked by the receipient e.t.c.
+		return err
+	}
+
+	return nil
+}
+
+```
 
 ### Usage
 
@@ -66,7 +122,6 @@ Request:
 | 	"title": "hello from hedwig",
 | 	"content": "test123",
 | 	"delay": 1,
-| 	"params": ["Markdown"]
 | }
 ```
 
@@ -80,3 +135,4 @@ Response:
 |   "message": "6c9d0793-41e8-438c-9181-170af6a6da7f",
 |   "ok": true
 | }
+```
